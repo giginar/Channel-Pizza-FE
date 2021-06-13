@@ -5,15 +5,15 @@
 
       <div class="form-group">
         <label>Email address</label>
-        <input type="email" class="form-control form-control-lg" />
+        <input type="email" class="form-control form-control-lg" v-model="form.email"/>
       </div>
 
       <div class="form-group">
         <label>Password</label>
-        <input type="password" class="form-control form-control-lg" />
+        <input type="password" class="form-control form-control-lg" v-model="form.password"/>
       </div>
 
-      <button type="submit" class="btn btn-dark btn-lg btn-block">
+      <button type="submit" class="btn btn-dark btn-lg btn-block" @keypress="signIn">
         Sign In
       </button>
 
@@ -25,9 +25,22 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   data() {
-    return {};
+    return {
+      form:{
+        email: '',
+        password: '',
+      }
+    };
   },
+  methods: {
+    signIn() {
+      axios.post('', this.form)
+      .then((response) => {this.form = response.bind});
+      console.log(this.form);
+    }
+  }
 };
 </script>

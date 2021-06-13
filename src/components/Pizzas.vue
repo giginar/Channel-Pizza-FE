@@ -55,7 +55,6 @@ export default {
   name: "Pizzas",
   data() {
     return {
-      url_base: "http://localhost:8080/",
       query: "",
       pizzas: [],
       is_loading: false,
@@ -67,25 +66,28 @@ export default {
     this.fetchAllPizzas();
   },
   methods: {
+    /**
+     * this method used for searching the pizzas.
+     */
     async fetchPizza(e) {
       if (e.key == "Enter") {
         this.is_loading = true;
         this.pizzas = [];
         if (this.query != "") {
-          let response = await axios.get(
-            `${this.url_base}pizzas/all/ingredients/${this.query}`
-          );
-          this.pizzas = response;
+          await axios.get(`http://localhost:9002/pizzas/all/ingredients/${this.query}`)
+          .then((response) => (this.pizzas = response.data));
           this.is_loading = false;
         } else {
           this.fetchAllPizzas();
         }
       }
     },
+    /**
+     * This method gets all the pizzas from the database using BE.
+     */
     async fetchAllPizzas() {
-      let response = await axios.get(`${this.url_base}pizzas/all/`);
-      this.pizzas = response;
-      console.log(this.pizzas);
+      await axios.get(`http://localhost:9002/pizzas/getAllPizzas`)
+      .then((response) => (this.pizzas = response.data));
       this.is_loading = false;
     },
   },

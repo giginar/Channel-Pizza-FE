@@ -119,7 +119,7 @@ export default {
           price: 40,
           ingredients: ["Mozarella", "Salami", "Mushrooms"],
           image:
-            "https://www.pizzahut.com.tr/CMSFiles/Product/LittleImage/ciftlik-evi.jpg",
+            "images/ciftlik-evi.jpg",
         },
         {
           id: "60b93c52e37284117144f247",
