@@ -1,93 +1,169 @@
 
 <template>
   <div class="vue-tempalte">
-    <form>
-      <h3>Sign Up</h3>
+    <form name="form" @submit.prevent="handleRegister">
+      <div v-if="!successful">
+        <b></b>
 
-      <div class="form-group">
-        <label>First Name</label>
-        <input type="text" class="form-control form-control-lg" v-model="form.firstName"/>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input
+            name="username"
+            type="text"
+            class="form-control form-control-lg"
+            v-model="user.username"
+            
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input
+            
+            type="text"
+            class="form-control form-control-lg"
+            v-model="user.firstName"
+            name="firstName"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input
+            type="text"
+            class="form-control form-control-lg"
+            v-model="user.lastName"
+            name="lastName"
+          
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input
+            name="email"
+            type="email"
+            class="form-control form-control-lg"
+            v-model="user.email"
+          
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            name="password"
+            type="password"
+            class="form-control form-control-lg"
+            v-model="user.password"
+         
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="address">Address</label>
+          <input
+            name="address"
+            type="text"
+            class="form-control form-control-lg"
+            v-model="user.address"
+          
+          />
+        </div>
+
+        <div>
+          <label for="postalCode">Postal Code</label>
+          <b-form-input
+            list="my-list-id"
+            v-model="user.postalCode"
+            @input="fetchAPI(user.postalCode)"
+          ></b-form-input>
+          <datalist id="my-list-id" autocomplete="off">
+            <option 
+              v-for="option in options"
+              :key="option.id"
+            >
+              {{ option }}
+            </option>
+          </datalist>
+        </div>
+
+        <br />
+
+        <div class="form-group">
+          <button class="btn btn-primary btn-block">Sign Up</button>
+        </div>
+
+        <p class="forgot-password text-right">
+          Already registered
+          <router-link to="/login">Sign in</router-link>
+        </p>
       </div>
-
-      <div class="form-group">
-        <label>Last Name</label>
-        <input type="text" class="form-control form-control-lg" v-model="form.lastName"/>
-      </div>
-
-      <div class="form-group">
-        <label>Email address</label>
-        <input type="email" class="form-control form-control-lg" v-model="form.email"/>
-      </div>
-
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" class="form-control form-control-lg" v-model="form.password"/>
-      </div>
-
-      <div class="form-group">
-        <label>Address</label>
-        <input type="text" class="form-control form-control-lg" v-model="form.address"/>
-      </div>
-
-      <div>
-        <label>Postal Code</label>
-        <b-form-input list="my-list-id" v-model="query" @input="fetchAPI" ></b-form-input>
-        <datalist id="my-list-id" autocomplete="off">
-          <option v-for="option in options" :key="option.id">{{ option }}</option>
-        </datalist>
-      </div>
-
-      <br>
-
-      <button type="submit" class="btn btn-dark btn-lg btn-block" @keypress="submit">
-        Sign Up
-      </button>
-
-      <p class="forgot-password text-right">
-        Already registered
-        <router-link to="/login">Sign in</router-link>
-      </p>
     </form>
   </div>
 </template>
 
 <script>
+import User from "../models/user";
+
 import axios from "axios";
+
 export default {
-  name: "postal",
+  name: "Register",
   data() {
     return {
-      form:{
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        address: '',
-        postalCode: '',
-      },
+      user: new User("", "", "", "", "", "", ""),
+      submitted: false,
+      successful: false,
+      message: "",
       options: [],
-      query: "",
+      
     };
   },
   components: {},
   created() {
-    this.fetchAPI();
-    console.log(this.options);
+  },
+  computed: {
+    loggedIn() {
+      return this.$store.state.auth.status.loggedIn;
+    },
+  },
+  mounted() {
+    if (this.loggedIn) {
+      this.$router.push("/login");
+    }
   },
   methods: {
+    handleRegister() {
+      this.message = "";
+      this.submitted = true;
+      this.$store.dispatch("auth/register", this.user).then(
+            (data) => {
+              this.message = data.message;
+              this.successful = true;
+            },
+            (error) => {
+              this.message =
+                (error.response &&
+                  error.response.data &&
+                  error.response.data.message) ||
+                error.message ||
+                error.toString();
+                console.log(error.message);
+              this.successful = false;
+            }
+          );
+    },
     /**
     Getting postal codes with given API
      */
-    async fetchAPI() {
+    async fetchAPI(query) {
       this.options = [];
-      await axios.get(`https://api.postcodes.io/postcodes/${this.query}/autocomplete`).then(response => (this.options = response.data.result));
+      await axios
+        .get(`https://api.postcodes.io/postcodes/${query}/autocomplete`)
+        .then((response) => (this.options = response.data.result));
       console.log(this.options);
     },
-    submit() {
-      axios.post('https://localhost:8080/api/v1/registration', this.form)
-      .then((response) => {this.form = response.bind});
-      console.log(this.form);
-    }
   },
 };
 </script>
