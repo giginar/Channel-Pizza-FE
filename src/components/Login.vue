@@ -68,7 +68,6 @@ export default {
   methods: {
     handleLogin() {
       this.loading = true;
-          console.log("ifin içindeyim")
           this.$store.dispatch("auth/login", this.user).then(
             () => {
               this.$router.push("/pizzas");
